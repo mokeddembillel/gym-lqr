@@ -1,1 +1,1 @@
-from gym_foo.envs.lqr_env import LqrEnv
+from gym_lqr.envs.lqr_env import LqrEnv
