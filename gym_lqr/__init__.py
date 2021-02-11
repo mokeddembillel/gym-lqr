@@ -1,4 +1,5 @@
 from gym.envs.registration import register
+import numpy as np
 
 register(
     id='lqr-v0',
