@@ -6,14 +6,12 @@ import numpy as np
 class LqrEnv(gym.Env):
     metadata = {'render.modes': ['human']}
     
-    def __init__(self, dim, init_x, x_bound, u_bound):
+    def __init__(self, dim, x_bound, u_bound):
         
         # Dimention n
         self.n = dim
-        # Initial State
-        self.init_x = np.array([init_x])
         # Current State
-        self.x = self.init_x
+        self.x = None
         # Dimention m
         self.m = dim
         # Action
@@ -49,13 +47,15 @@ class LqrEnv(gym.Env):
     #     print B
         
      
-    def reset(self, max_steps):
-        self.x = self.init_x
-        self.u = None
+    def reset(self, init_x, max_steps):
+        self.x = np.array([init_x])
+
         self.S = np.identity(self.n)
         self.R = np.identity(self.m)
+
         self.A = np.ones((self.n,self.n))
         self.B = np.ones((self.m,self.m))
+
         self.steps = 0
         self.max_steps = max_steps
         return self.x
@@ -75,7 +75,7 @@ class LqrEnv(gym.Env):
         self.steps += 1
         return self.x, -self.c, 1 if self.steps > self.max_steps else 0, None
         
-        
+
     def render(self, mode='human'):
         pass
     def close(self):
