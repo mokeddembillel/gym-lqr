@@ -1,0 +1,4 @@
+
+*.pyc
+*.txt
+gym_lqr.egg-info/PKG-INFO
