@@ -3,21 +3,24 @@ from gym import error, spaces, utils
 from gym.utils import seeding
 import numpy as np
 
-class LqrEnv(gym.Env):
+class LqrEnvStochastic(gym.Env):
     metadata = {'render.modes': ['human']}
     
-    def __init__(self, dim, x_bound, u_bound):
+    def __init__(self, dim_state, dim_action, x_bound, u_bound):
         
         # Dimention n
-        self.n = dim
+        self.n = dim_state
         # Current State
         self.x = None
         # Dimention m
-        self.m = dim
+        self.m = dim_action
         # Action
         self.u = None
         # Cost
         self.c = None
+        
+        # Noise parameter
+        self.w = None
         
         # Constant matricies
         self.A = None
@@ -45,16 +48,20 @@ class LqrEnv(gym.Env):
     #     B = np.dot(A, A.transpose())
     #     B[i][i] += 1 for i in range(len(B))
     #     print B
+    
+
         
      
     def reset(self, init_x, max_steps):
         self.x = np.array([init_x])
+        
+        self.w = np.random.multivariate_normal([0, 0, 0], np.identity(self.n))
 
-        self.S = np.identity(self.n)
+        self.S = np.identity(self.n)*0.001  
         self.R = np.identity(self.m)
 
-        self.A = np.ones((self.n,self.n))
-        self.B = np.ones((self.m,self.m))
+        self.A = np.array([[1.01, 0.01, 0.0], [0.01, 1.01, 0.01], [0.0, 0.01, 1.01]])
+        self.B = np.identity(self.m)
 
         self.steps = 0
         self.max_steps = max_steps
@@ -62,15 +69,13 @@ class LqrEnv(gym.Env):
         
      
     def step(self, action):
-        self.u = np.array(action)
-        self.x_old = self.x
-        
+        self.u = np.array(action)        
         # Calculating the cost
-        self.c = np.dot(np.dot(self.x.transpose(), self.S), self.x) + \
-            np.dot(np.dot(self.u.transpose(), self.R), self.u)
         
+        self.c = np.dot(np.dot(np.squeeze(self.x.transpose()), self.S), np.squeeze(self.x)) + \
+            np.dot(np.dot(np.squeeze(self.u.transpose()), self.R), np.squeeze(self.u))
         # Calculating the new State
-        self.x = np.dot(self.A, self.x) + np.dot(self.B, self.u)
+        self.x = np.dot(self.A, np.squeeze(self.x)) + np.dot(self.B, np.squeeze(self.u)) + np.squeeze(self.w)
 
         self.steps += 1
         return self.x, -self.c, 1 if self.steps > self.max_steps else 0, None
