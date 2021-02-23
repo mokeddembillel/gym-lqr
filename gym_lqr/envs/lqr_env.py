@@ -66,11 +66,11 @@ class LqrEnv(gym.Env):
         self.x_old = self.x
         
         # Calculating the cost
-        self.c = np.dot(np.dot(self.x.transpose(), self.S), self.x) + \
-            np.dot(np.dot(self.u.transpose(), self.R), self.u)
+        self.c = np.dot(np.dot(np.squeeze(self.x.transpose()), self.S), np.squeeze(self.x)) + \
+            np.dot(np.dot(np.squeeze(self.u.transpose()), self.R), np.squeeze(self.u))
         
         # Calculating the new State
-        self.x = np.dot(self.A, self.x) + np.dot(self.B, self.u)
+        self.x = np.dot(self.A, np.squeeze(self.x)) + np.dot(self.B, np.squeeze(self.u))
 
         self.steps += 1
         return self.x, -self.c, 1 if self.steps > self.max_steps else 0, None
