@@ -21,3 +21,10 @@ register(
     max_episode_steps=1000,
     kwargs={'dim_state' : 3, 'dim_action': 3, 'x_bound' : np.inf, 'u_bound' : 10},
 )
+
+register(
+    id='lqr-v1',
+    entry_point='gym_lqr.envs:LqrEnvV1',
+    max_episode_steps=1000,
+    kwargs={'dim' : 1, 'max_steps': 30, 'x_bound' : np.inf, 'u_bound' : 10},
+)
